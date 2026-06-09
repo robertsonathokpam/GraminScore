@@ -157,4 +157,11 @@ Team:<br>
 Built with love during the  DUHacks 5.0 hackathon by<br> 
 Team  - The Alchemist<br> 
 Robertson Athokpam,
+Rahkhuo Edward,
 Thiyam Chingu Robaartt.
+
+
+## Contributors
+- **[Rahkhuo Edward](https://github.com/RahkhuoEdward)** - Co-Developer
+- **[Robertson Athokpam](https://github.com/robertsonathokpam)** - Co-Developer
+- **[Thiyam Chingu Robaartt](https://github.com/Thiy3640)** - Co-Developer
