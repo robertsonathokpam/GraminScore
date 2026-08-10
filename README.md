@@ -1,167 +1,161 @@
-
-
-
 # GraminScore AI
 
 GraminScore AI is a web-based application designed to automate the inspection of rural houses. Using Deep Learning, it analyzes user-uploaded images of homes (mud, concrete, thatch) and assigns a structural condition score. It also generates an official PDF report for government or personal records.
 
-#  Key Features
+## Key Features
 
-Smart Validation: Automatically detects invalid images (e.g., cats, cars, selfies) and rejects them before analysis.
+- **Smart Validation** — Automatically detects invalid images (e.g., cats, cars, selfies) and rejects them before analysis.
+- **Component Scoring** — Analyzes specific parts of the house (Roof, Walls, Door) using feature extraction.
+- **AI Condition Score** — Generates a 0–100 score indicating the structural health of the building.
+- **PDF Report Generation** — Creates a downloadable, professional audit report with the house image and detailed metrics.
+- **Responsive UI** — A modern, glassmorphism-based interface that works seamlessly on mobile devices.
 
-Component Scoring: Analyzes specific parts of the house (Roof, Walls, Door) using feature extraction.
+## How the Model Works
 
-AI Condition Score: Generates a 0-100 score indicating the structural health of the building.
+The core of GraminScore is built on **Transfer Learning** using MobileNetV2.
 
-PDF Report Generation: Creates a downloadable, professional audit report with the house image and detailed metrics.
+1. **Base Model**: MobileNetV2 (pre-trained on ImageNet) is used as the feature extractor. Optimized for speed and efficiency, making it ideal for web deployment.
+2. **Preprocessing**: Incoming images are resized to 224×224 pixels and normalized.
+3. **Two-Stage Pipeline**:
+   - **Stage 1 (Object Detection)**: The generic MobileNetV2 checks if the image contains a house, building, or architecture. Non-house images (cats, cars, etc.) are rejected.
+   - **Stage 2 (Damage Assessment)**: Valid images are passed to custom-trained top layers (`my_house_model.h5`), which classify the structural integrity (Good vs. Damaged).
+4. **Scoring**: The probability output is converted into a percentage score (0–100).
 
-Responsive UI: A modern, glassmorphism-based interface that works seamlessly on mobile devices.
-
-# How the Model Works
-The core of GraminScore is built on Transfer Learning using MobileNetV2.
-
-Base Model: We use MobileNetV2 (pre-trained on ImageNet) as the feature extractor. This model is optimized for speed and efficiency, making it perfect for web deployment.
-
-Preprocessing: Incoming images are resized to 224x224 pixels and normalized.
-
-Two-Stage Pipeline:
-
-Stage 1 (Object Detection): The generic MobileNetV2 checks if the image contains a "House," "Building," or "Architecture." If it detects a "Cat" or "Car," the image is rejected.
-
-Stage 2 (Damage Assessment): If valid, the image is passed to our custom-trained top layers (stored in my_house_model.h5), which classify the texture and structural integrity (Good vs. Damaged).
-
-Scoring: The probability output from the model is converted into a percentage score (0-100).
-
-
+## Problem Statement
 
 Manual house condition assessment is:
-- Time-consuming  
-- Subjective  
-- Difficult to scale in rural and remote areas  
+- Time-consuming
+- Subjective
+- Difficult to scale in rural and remote areas
 
 There is a need for a simple, image-based system that can assist officials and organizations in evaluating housing conditions more efficiently.
 
+## Solution
 
-Solution:
 GraminScore AI provides:
--  Image-based house validation using AI  
--  Component-wise analysis (roof, walls, doors)  
--  Automated condition scoring  
--  Downloadable PDF assessment report  
--  Soft warnings for non-rural or urban structures  
+- Image-based house validation using AI
+- Component-wise analysis (roof, walls, doors)
+- Automated condition scoring
+- Downloadable PDF assessment report
+- Soft warnings for non-rural or urban structures
 
 The system works with ordinary images captured using basic cameras or mobile phones.
 
-Technologies Used:
-- Python
-- Flask - Web framework
-- TensorFlow/Keras - Image classification (MobileNetV2)
-- OpenCV (cv2) - Classical computer vision for condition scoring
-- Pillow (PIL) - Image handling
-- NumPy- Numerical processing
-- ReportLab - PDF report generation
-- HTML/CSS - Frontend UI
+## Technologies Used
 
+| Technology | Purpose |
+|---|---|
+| Python | Core language |
+| Flask | Web framework |
+| TensorFlow / Keras | Image classification (MobileNetV2) |
+| Pillow (PIL) | Image handling |
+| NumPy | Numerical processing |
+| ReportLab | PDF report generation |
+| HTML / CSS / JS | Frontend UI |
 
- Platform:
-- Web Application
-- Runs locally on a browser
-- Can be deployed to cloud platforms (e.g., Render, Railway, Hugging Face Spaces)
+## Project Structure
 
-
-Project Structure:
-
-```text
+```
 GraminScore/
-│
-├─ app.py
-├─ templates/
-│   └─ index.html
-├─ static/
-│   └─ style.css
-│   └─ main.js
-├─ report.pdf
-├─ requirements.txt
-└─ README.md
+├── app.py                      # Flask application
+├── templates/
+│   └── index.html              # Frontend UI
+├── static/
+│   ├── style.css               # Styles
+│   └── main.js                 # Client-side logic
+├── model_training/
+│   ├── training_model.py       # Model training script
+│   └── dataset/                # Training data
+├── generated_reports/          # PDF reports (auto-created)
+├── temp_images/                # Uploaded images (auto-created)
+├── my_house_model.h5           # Trained model (see setup)
+├── requirements.txt
+├── LICENSE
+└── README.md
 ```
 
+## Installation & Setup
 
+### Prerequisites
+- Python 3.11 (64-bit) — TensorFlow does **not** support Python 3.14
 
-Installation & Setup :
+Verify:
+```bash
+py -3.11 --version
+```
 
-1. Install Python
- - Install Python 3.11 (64-bit)
- - TensorFlow does NOT support Python 3.14
+### 1. Clone the Repository
+```bash
+git clone https://github.com/robertsonathokpam/GraminScore.git
+cd GraminScore
+```
 
-   Verify:
-    ```text
-   py -3.11 --version
-    ```
+### 2. Create Virtual Environment
+```bash
+py -3.11 -m venv venv
+```
 
-2. Create Virtual Environment
-     ```text
-   py -3.11 -m venv venv
-     ```
-   Activate:
-   Windows
-    ```text
-   venv\Scripts\activate
-     ```
-   macOS / Linux
-   ```text
-   source venv/bin/activate
-    ```
+Activate:
+- **Windows**: `venv\Scripts\activate`
+- **macOS / Linux**: `source venv/bin/activate`
 
-3. Install Dependencies
-   ```text
-   pip install flask tensorflow pillow numpy reportlab opencv-python
-   ```
+### 3. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
 
-4. Run the Application
-   ```text
-   python app.py
-    ```
-   Open in browser:
-   http://127.0.0.1:5000
+### 4. Train the Model (Required on first setup)
+```bash
+cd model_training
+python training_model.py
+```
+This will generate `my_house_model.h5`. Move it to the project root:
+```bash
+mv my_house_model.h5 ../
+```
 
+### 5. Run the Application
+```bash
+python app.py
+```
+Open in browser: [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
-Features:
-1. Validates image file formats
-2. Rejects non-house images (people, animals, plants, objects)
-3. Identifies house components
+## Features
+
+1. Validates image file formats (JPG, PNG, WEBP)
+2. Rejects non-house images (people, animals, vehicles, objects)
+3. Identifies house components (roof, wall, door)
 4. Generates condition score (0–100)
 5. Creates downloadable PDF report
 6. Includes uploaded images in the report
-7. Displays warnings for explicitly urban structures
+7. Displays warnings for skipped/invalid files
 
-Challenges Faced:
+## Challenges Faced
+
 1. Lack of labeled datasets for rural house condition scoring
 2. Time constraints during the hackathon
 3. Initial false positives (non-house images classified as components)
 
+## Future Improvements
 
-
-Future Improvements:
 1. Real-time mobile camera integration
 2. GPS tagging and survey tracking
 3. Multilingual support
 4. Cloud deployment for large-scale use
 
+## Disclaimer
 
-
-Disclaimer:<br>
-This project is a prototype created for demonstration and research purposes.<br>
+This project is a prototype created for demonstration and research purposes.
 Final decisions should always be verified by qualified professionals or authorities.
 
-Team:<br>
-Built with love during the  DUHacks 5.0 hackathon by<br> 
-Team  - The Alchemist<br> 
-Robertson Athokpam,
-Rahkhuo Edward,
-Thiyam Chingu Robaartt.
+## Team
 
+Built during the **DUHacks 5.0** hackathon by **Team The Alchemist**:
 
-## Contributors
-- **[Rahkhuo Edward](https://github.com/RahkhuoEdward)** - Co-Developer
-- **[Robertson Athokpam](https://github.com/robertsonathokpam)** - Co-Developer
-- **[Thiyam Chingu Robaartt](https://github.com/Thiy3640)** - Co-Developer
+- **[Robertson Athokpam](https://github.com/robertsonathokpam)** — Co-Developer
+- **[Rahkhuo Edward](https://github.com/RahkhuoEdward)** — Co-Developer
+- **[Thiyam Chingu Robaartt](https://github.com/Thiy3640)** — Co-Developer
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).

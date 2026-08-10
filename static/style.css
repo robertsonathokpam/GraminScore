@@ -13,10 +13,7 @@
 
 body {
     min-height: 100vh;
-    /* Remove the old linear-gradient */
-    
-    /* Add your image */
-    background: url('./images/bg2.jpg') no-repeat center center fixed;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #0f4c75 70%, #1b2838 100%);
     background-size: cover;
     
     display: flex;

@@ -1,5 +1,5 @@
 import os
-import cv2
+import uuid
 import tensorflow as tf
 import numpy as np
 from PIL import Image
@@ -13,9 +13,9 @@ app = Flask(__name__)
 
 # ------------------ FOLDERS ------------------
 UPLOAD_FOLDER = "temp_images"
-# Ensure we clean up old PDFs/images or just overwrite
-REPORT_PATH = "report.pdf" 
+REPORT_FOLDER = "generated_reports"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(REPORT_FOLDER, exist_ok=True)
 
 # ------------------ LOAD MODELS ------------------
 # 1. Generic Model (MobileNetV2) for Object Detection
@@ -137,7 +137,7 @@ def analyze():
         # Load Image
         try:
             img_pil = Image.open(file).convert("RGB")
-        except:
+        except Exception as e:
             skipped_files.append(f"{file.filename} (Corrupt file)")
             continue
 
@@ -183,7 +183,9 @@ def analyze():
     description = get_detailed_description(overall_score)
 
     # --- GENERATE PDF ---
-    generate_pdf(REPORT_PATH, valid_images_paths[0], overall_score, final_roof, final_wall, final_door, description)
+    report_filename = f"report_{uuid.uuid4().hex[:8]}.pdf"
+    report_path = os.path.join(REPORT_FOLDER, report_filename)
+    generate_pdf(report_path, valid_images_paths[0], overall_score, final_roof, final_wall, final_door, description)
 
     return render_template("index.html", 
                            score=overall_score,
@@ -191,7 +193,8 @@ def analyze():
                            walls=final_wall if final_wall is not None else "Data Not Available",
                            door=final_door if final_door is not None else "Data Not Available",
                            desc=description,
-                           skipped=skipped_files)
+                           skipped=skipped_files,
+                           report_file=report_filename)
 
 def generate_pdf(path, image_path, score, roof, wall, door, desc):
     c = canvas.Canvas(path, pagesize=letter)
@@ -260,9 +263,12 @@ def generate_pdf(path, image_path, score, roof, wall, door, desc):
 
     c.save()
 
-@app.route("/download")
-def download():
-    return send_file(REPORT_PATH, as_attachment=True)
+@app.route("/download/<filename>")
+def download(filename):
+    report_path = os.path.join(REPORT_FOLDER, filename)
+    if not os.path.exists(report_path):
+        return "Report not found.", 404
+    return send_file(report_path, as_attachment=True)
 
 if __name__ == "__main__":
     app.run(debug=True)

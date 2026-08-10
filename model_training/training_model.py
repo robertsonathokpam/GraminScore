@@ -1,4 +1,5 @@
 import os
+import zipfile
 import tensorflow as tf
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.applications import MobileNetV2
@@ -6,13 +7,13 @@ from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
 from tensorflow.keras.models import Model
 
 # --- 1. UNZIP DATA ---
-# This opens your uploaded zip file
 if os.path.exists("dataset.zip"):
     print("Unzipping dataset...")
-    !unzip -q dataset.zip
+    with zipfile.ZipFile("dataset.zip", "r") as zip_ref:
+        zip_ref.extractall(".")
     print("Unzip Complete!")
 else:
-    print("ERROR: Please upload dataset.zip first!")
+    print("INFO: No dataset.zip found. Using existing 'dataset/' directory.")
 
 # --- 2. SETTINGS ---
 BATCH_SIZE = 32
@@ -20,7 +21,7 @@ IMG_SIZE = (224, 224)
 DATA_DIR = "dataset"  # This matches the folder inside your zip
 
 # --- 3. DATA LOADERS ---
-# IMPROVED DATA LOADER (With Augmentation)
+# Data loader with augmentation for better generalization
 datagen = ImageDataGenerator(
     rescale=1.0/255,
     rotation_range=20,      # Rotate image slightly
@@ -32,7 +33,6 @@ datagen = ImageDataGenerator(
     fill_mode='nearest',
     validation_split=0.2
 )
-# The rest of your code (flow_from_directory) stays exactly the same!
 
 print("\nLoading Training Data...")
 train_generator = datagen.flow_from_directory(
@@ -67,10 +67,10 @@ model = Model(inputs=base_model.input, outputs=predictions)
 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
 # --- 5. TRAIN ---
-print("\nStarting Training on GPU...")
+print("\nStarting Training...")
 history = model.fit(
     train_generator,
-    epochs=20,  # We can do more epochs since GPU is fast!
+    epochs=20,
     validation_data=val_generator
 )
 
